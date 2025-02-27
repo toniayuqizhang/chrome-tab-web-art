@@ -3,17 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <title>Chrome Tab Web Art</title>
-
+    <title>Ode to Tab Hoarding</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #dfe7f1;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .tab-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            background: #f1f3f4;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+            max-width: 90vw;
+            justify-content: flex-start;
+        }
+        .tab {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .tab img {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+    </style>
 </head>
 <body>
-    <h1>Ode to Tab Hoarding</h1>
+    <h2>Chrome Tab Web Art</h2>
     <div class="tab-bar" id="tabBar">
         <!-- Tabs will be added here -->
     </div>
-    <button onclick="addTab()">+</button>
-    <script src="script.js">
+    <button onclick="addTab()">Add Tab</button>
+    
+    <script>
+        let tabCount = 0;
+        const maxFavicons = 100;
+        const words = [
+            "Each", "time", "you", "open", "a", "new", "tab,", "a", "door", "swings", "wide,",
+            "a", "thread", "unspools,", "a", "river", "splits.", "The", "past", "lingers",
+            "in", "quiet", "rows,", "waiting,", "half-read,", "half-known,", "half-forgotten.",
+            "Each", "click", "plants", "a", "seed", "that", "never", "falls,",
+            "roots", "stretching", "through", "unseen", "pages,",
+            "a", "forest", "of", "questions", "with", "no", "clear", "path.",
+            "You", "promise", "to", "return,", "but", "the", "tide", "pulls", "forward.",
+            "Somewhere,", "a", "tab", "still", "hums", "in", "the", "dark,",
+            "a", "voice", "mid-sentence,", "a", "thought", "unfinished,",
+            "holding", "space", "for", "what", "was", "almost", "grasped—",
+            "a", "constellation", "of", "maybes,", "never", "closed."
+        ];
+
+        function addTab() {
+            const tabBar = document.getElementById("tabBar");
+            const tab = document.createElement("div");
+            tab.className = "tab";
+            
+            const favicon = document.createElement("img");
+            favicon.src = `data/favicon(${tabCount % maxFavicons}).png`;
+            favicon.alt = "Favicon";
+            
+            const text = document.createElement("span");
+            text.innerText = words[tabCount % words.length];
+            
+            tab.appendChild(favicon);
+            tab.appendChild(text);
+            tabBar.appendChild(tab);
+            
+            tabCount++;
+        }
+    </script>
+    <script>
+        let chain = [];
+        let maxLength = 100;
+        let favicons = [];
+        let numFavicons = 100;
+
+        function preload() {
+            for (let i = 0; i < numFavicons; i++) {
+                favicons.push(loadImage(`data/favicon(${i}).png`));
+            }
+        }
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            noCursor();
+        }
+
+        function draw() {
+            background(255);
+            for (let i = 0; i < chain.length; i++) {
+                let targetX, targetY;
+                if (i === 0) {
+                    targetX = mouseX;
+                    targetY = mouseY;
+                } else {
+                    targetX = chain[i - 1].x;
+                    targetY = chain[i - 1].y;
+                }
+                chain[i].x = lerp(chain[i].x, targetX, 0.2);
+                chain[i].y = lerp(chain[i].y, targetY, 0.2);
+                image(chain[i].img, chain[i].x, chain[i].y, 20, 20);
+            }
+            drawCursor(mouseX, mouseY);
+        }
+
+        function mousePressed() {
+            let randomFavicon = random(favicons);
+            chain.push({ x: mouseX, y: mouseY, img: randomFavicon });
+            if (chain.length > maxLength) {
+                chain.shift();
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+
+        function drawCursor(x, y) {
+            fill(0);
+            noStroke();
+            let size = 0;
+            triangle(x, y, x - size, y + size * 2, x + size, y + size * 2);
+        }
     </script>
 </body>
 </html>
