@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #dfe7f1;
+            background-color: #ffffff;
             margin: 0;
             padding: 20px;
             display: flex;
@@ -16,7 +16,7 @@
             align-items: center;
         }
         .tab-bar {
-            display: flex;
+            display: none; /* Hide tab bar initially */
             flex-wrap: wrap;
             gap: 5px;
             background: #f1f3f4;
@@ -26,6 +26,7 @@
             max-width: 90vw;
             justify-content: flex-start;
         }
+
         .tab {
             display: flex;
             align-items: center;
@@ -50,7 +51,7 @@
     </style>
 </head>
 <body>
-    <h2>Chrome Tab Web Art</h2>
+    <h2>Ode to Tab Hoarding</h2>
     <div class="tab-bar" id="tabBar">
         <!-- Tabs will be added here -->
     </div>
@@ -75,76 +76,88 @@
 
         function addTab() {
             const tabBar = document.getElementById("tabBar");
+            
+            // Show tab bar when the first tab is added
+            if (tabCount === 0) {
+                tabBar.style.display = "flex";
+            }
+
             const tab = document.createElement("div");
             tab.className = "tab";
-            
+
             const favicon = document.createElement("img");
             favicon.src = `data/favicon(${tabCount % maxFavicons}).png`;
             favicon.alt = "Favicon";
-            
+
             const text = document.createElement("span");
             text.innerText = words[tabCount % words.length];
-            
+
             tab.appendChild(favicon);
             tab.appendChild(text);
             tabBar.appendChild(tab);
-            
+
             tabCount++;
+            addFaviconToTrail(favicon.src);
         }
     </script>
     <script>
         let chain = [];
-        let maxLength = 100;
-        let favicons = [];
-        let numFavicons = 100;
+let maxLength = 100; // Increased from 10 to 100
+let favicons = [];
+let numFavicons = 100; // Adjusted for 100 favicons
 
-        function preload() {
-            for (let i = 0; i < numFavicons; i++) {
-                favicons.push(loadImage(`data/favicon(${i}).png`));
-            }
-        }
+function preload() {
+  // Load all favicon images from the "data" folder with new naming convention
+  for (let i = 0; i < numFavicons; i++) {
+    favicons.push(loadImage(`data/favicon(${i}).png`));
+  }
+}
 
-        function setup() {
-            createCanvas(windowWidth, windowHeight);
-            noCursor();
-        }
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+}
 
-        function draw() {
-            background(255);
-            for (let i = 0; i < chain.length; i++) {
-                let targetX, targetY;
-                if (i === 0) {
-                    targetX = mouseX;
-                    targetY = mouseY;
-                } else {
-                    targetX = chain[i - 1].x;
-                    targetY = chain[i - 1].y;
-                }
-                chain[i].x = lerp(chain[i].x, targetX, 0.2);
-                chain[i].y = lerp(chain[i].y, targetY, 0.2);
-                image(chain[i].img, chain[i].x, chain[i].y, 20, 20);
-            }
-            drawCursor(mouseX, mouseY);
-        }
+function draw() {
+  background(255);
 
-        function mousePressed() {
-            let randomFavicon = random(favicons);
-            chain.push({ x: mouseX, y: mouseY, img: randomFavicon });
-            if (chain.length > maxLength) {
-                chain.shift();
-            }
-        }
+  // Update position of the favicons using smooth following motion
+  for (let i = 0; i < chain.length; i++) {
+    let targetX, targetY;
 
-        function windowResized() {
-            resizeCanvas(windowWidth, windowHeight);
-        }
+    if (i === 0) {
+      targetX = mouseX;
+      targetY = mouseY;
+    } else {
+      targetX = chain[i - 1].x;
+      targetY = chain[i - 1].y;
+    }
 
-        function drawCursor(x, y) {
-            fill(0);
-            noStroke();
-            let size = 0;
-            triangle(x, y, x - size, y + size * 2, x + size, y + size * 2);
-        }
+    // Apply easing for smooth trailing effect
+    chain[i].x = lerp(chain[i].x, targetX, 0.2);
+    chain[i].y = lerp(chain[i].y, targetY, 0.2);
+
+    // Draw the favicon image at this position
+    image(chain[i].img, chain[i].x, chain[i].y, 20, 20);
+  }
+}
+
+function mousePressed() {
+  let randomFavicon = random(favicons); // Pick a random favicon
+
+  // Add a new favicon to the chain
+  chain.push({ x: mouseX, y: mouseY, img: randomFavicon });
+
+  // Limit the length of the chain
+  if (chain.length > maxLength) {
+    chain.shift(); // Remove the oldest favicon
+  }
+}
+
+// Function to handle window resizing
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
     </script>
 </body>
 </html>

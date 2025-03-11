@@ -32,3 +32,29 @@
     
 //     tabCount++;
 // }
+
+
+// function addTab() {
+//     const tabBar = document.getElementById("tabBar");
+    
+//     // Show tab bar when the first tab is added
+//     if (tabCount === 0) {
+//         tabBar.style.display = "flex";
+//     }
+
+//     const tab = document.createElement("div");
+//     tab.className = "tab";
+
+//     const favicon = document.createElement("img");
+//     favicon.src = `data/favicon(${tabCount % maxFavicons}).png`;
+//     favicon.alt = "Favicon";
+
+//     const text = document.createElement("span");
+//     text.innerText = words[tabCount % words.length];
+
+//     tab.appendChild(favicon);
+//     tab.appendChild(text);
+//     tabBar.appendChild(tab);
+
+//     tabCount++;
+// }
